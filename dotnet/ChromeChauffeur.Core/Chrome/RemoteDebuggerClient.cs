@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using ChromeChauffeur.Core.Chrome.Api;
+using ChromeChauffeur.Core.Chrome.InternalApi;
 using ChromeChauffeur.Core.Exceptions;
 using ChromeChauffeur.Core.Infrastructure.Http;
 using Newtonsoft.Json;
@@ -10,7 +11,7 @@ using JsonSerializer = ChromeChauffeur.Core.Infrastructure.Json.JsonSerializer;
 
 namespace ChromeChauffeur.Core.Chrome
 {
-    public class RemoteDebuggerClient : IDisposable
+    internal class RemoteDebuggerClient : IDisposable
     {
         private readonly JsonSerializer _jsonSerializer;
 
@@ -24,7 +25,7 @@ namespace ChromeChauffeur.Core.Chrome
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(15);
 
-        public string SendExpressionCommand(string expression)
+        public CommandResult SendExpressionCommand(string expression)
         {
             var command = new RemoteDebuggerCommand { Params = { Expression = expression } };
 
@@ -34,7 +35,7 @@ namespace ChromeChauffeur.Core.Chrome
 
             var response = _jsonSerializer.Deserialize<RemoteDebuggerCommandResponse>(jsonResponse);
 
-            return response.Result.Result.Value;
+            return new CommandResult(response);
         }
 
         public string SendRawCommand(string command)

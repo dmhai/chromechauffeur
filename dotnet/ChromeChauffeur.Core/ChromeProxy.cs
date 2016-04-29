@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Threading;
 using ChromeChauffeur.Core.Chrome;
+using ChromeChauffeur.Core.Chrome.InternalApi;
 using ChromeChauffeur.Core.Exceptions;
+using ChromeChauffeur.Core.Extensions;
 using ChromeChauffeur.Core.Infrastructure.IO;
 using ChromeChauffeur.Core.Infrastructure.Processes;
 using ChromeChauffeur.Core.Settings;
@@ -36,26 +38,62 @@ namespace ChromeChauffeur.Core
 
         public void GoToUrl(string url, TimeSpan timeout)
         {
-            _remoteDebuggerClient.SendExpressionCommand($"document.location='{url}'");
+            _remoteDebuggerClient.SendExpressionCommand($"document.location=\"{url}\"");
 
             WaitUntilDocumentIsReady(timeout);
         }
 
         public string GetCurrentUrl()
         {
-            return _remoteDebuggerClient.SendExpressionCommand("document.location.href");
+            return Eval<string>("document.location.href");
         }
 
         public void Click(string cssSelector)
         {
-            EnsureJavaScriptHelpersInjected();
-            Eval($"chromeChauffeur_privates.click('{cssSelector}');");
+            Click(cssSelector, _settings.DefaultTimeout);
         }
 
-        public void Write(string text, string cssSelector)
+        public void Click(string cssSelector, TimeSpan timeout)
         {
             EnsureJavaScriptHelpersInjected();
-            Eval($"chromeChauffeur_privates.write('{text}', '{cssSelector}');");
+            Eval($"chromeChauffeur_privates.click(\"{cssSelector}\");", timeout.AsDeadline());
+        }
+
+        public void Write(string cssSelector, string text)
+        {
+            Write(cssSelector, text, _settings.DefaultTimeout);
+        }
+
+        public void Write(string cssSelector, string text, TimeSpan timeout)
+        {
+            EnsureJavaScriptHelpersInjected();
+            Eval($"chromeChauffeur_privates.write(\"{text}\", \"{cssSelector}\");", timeout.AsDeadline());
+        }
+
+        public string GetInnerText(string selector)
+        {
+            return GetInnerText(selector, _settings.DefaultTimeout);
+        }
+
+        public string GetInnerText(string selector, TimeSpan timeout)
+        {
+            var deadline = timeout.AsDeadline();
+
+            WaitUntilElementExists(selector, timeout);
+            return Eval<string>($"document.querySelector(\"{selector}\").innerText", deadline);
+        }
+
+        public string GetInnerHtml(string selector)
+        {
+            return GetInnerHtml(selector, _settings.DefaultTimeout);
+        }
+
+        public string GetInnerHtml(string selector, TimeSpan timeout)
+        {
+            var deadline = timeout.AsDeadline();
+
+            WaitUntilElementExists(selector, timeout);
+            return Eval<string>($"document.querySelector(\"{selector}\").innerHTML", deadline);
         }
 
         public void WaitUntilElementExists(string selector)
@@ -65,9 +103,11 @@ namespace ChromeChauffeur.Core
 
         public void WaitUntilElementExists(string selector, TimeSpan timeout)
         {
+            var deadline = timeout.AsDeadline();
+
             WaitUntil(
-                () => Eval<bool>($"chromeChauffeur_privates.exists('{selector}')"), 
-                $"Could not find element with selector '{selector}' within timeout", 
+                () => Eval<bool>($"chromeChauffeur_privates.exists(\"{selector}\")", deadline), 
+                $"Could not find element with selector \"{selector}\" within timeout", 
                 timeout);
         }
 
@@ -78,8 +118,10 @@ namespace ChromeChauffeur.Core
 
         public void WaitUntilDocumentIsReady(TimeSpan timeout)
         {
+            var deadline = timeout.AsDeadline();
+
             WaitUntil(
-                () => Eval<bool>("document.readyState === 'complete'"),
+                () => Eval<bool>("document.readyState === \"complete\"", deadline),
                 "Document was not ready within timeout",
                 timeout);
         }
@@ -106,15 +148,38 @@ namespace ChromeChauffeur.Core
             throw new ChromeChauffeurTimeoutException(timeoutMessage);
         }
 
+        private CommandResult Eval(string expression, DateTime deadline)
+        {
+            while (DateTime.Now < deadline)
+            {
+                var result = _remoteDebuggerClient.SendExpressionCommand(expression);
+
+                if (!result.WasExceptionThrown)
+                    return result;
+            }
+
+            throw new ChromeChauffeurTimeoutException($"Failed to execute command \"{expression}\" within timeout");
+        }
+
         public string Eval(string expression)
         {
-            return _remoteDebuggerClient.SendExpressionCommand(expression);
+            var result = _remoteDebuggerClient.SendExpressionCommand(expression);
+
+            if (result.WasExceptionThrown)
+                throw new ChromeChauffeurException($"Command failed: {expression}");
+
+            return result.Value;
+        }
+
+        public T Eval<T>(string expression, DateTime deadline)
+        {
+            var result = Eval(expression, deadline);
+            return result.GetValue<T>();
         }
 
         public T Eval<T>(string expression)
         {
-            var result = _remoteDebuggerClient.SendExpressionCommand(expression);
-            return (T)Convert.ChangeType(result, typeof(T));
+            return _remoteDebuggerClient.SendExpressionCommand(expression).GetValue<T>();
         }
 
         private void EnsureJavaScriptHelpersInjected()

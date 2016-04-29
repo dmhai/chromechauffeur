@@ -54,9 +54,11 @@
     <Compile Include="Chrome\Api\RemoteDebuggerCommandResult.cs" />
     <Compile Include="Chrome\Api\RemoteDebuggerValue.cs" />
     <Compile Include="Chrome\Api\RemoteSessionResponse.cs" />
+    <Compile Include="Chrome\InternalApi\CommandResult.cs" />
     <Compile Include="Exceptions\ChromeChauffeurTimeoutException.cs" />
     <Compile Include="Exceptions\ChromeChauffeurException.cs" />
     <Compile Include="Chrome\Api\RemoteDebuggerCommand.cs" />
+    <Compile Include="Extensions\TimeSpanExtensions.cs" />
     <Compile Include="Infrastructure\Http\HttpClient.cs" />
     <Compile Include="Infrastructure\Http\HttpResponse.cs" />
     <Compile Include="Chrome\RemoteDebuggerClient.cs" />
