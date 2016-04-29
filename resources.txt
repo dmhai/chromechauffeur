@@ -1,0 +1,2 @@
+* https://markcz.wordpress.com/2012/02/18/automating-chrome-browser-from-csharp/
+* https://github.com/martinkunc/automate-chrome
