@@ -29,7 +29,12 @@ namespace ChromeChauffeur.Core.Infrastructure.Processes
 
         private static Process CreateChromeProcess(ChromeProxySettings settings)
         {
-            var args = $"--remote-debugging-port={settings.PortNumber} --user-data-dir={settings.ProfileDirectory} --no-first-run --no-default-browser-check";
+            var args = $"--remote-debugging-port={settings.PortNumber} " +
+                       $"--user-data-dir={settings.ProfileDirectory} " +
+                       "--no-first-run " +
+                       "--no-default-browser-check " +
+                       "--disable-translate " +
+                       "--disable-save-password-bubble";
 
             var processStartInfo = new ProcessStartInfo(settings.ChromeExecutablePath, args)
             {

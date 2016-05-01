@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromeChauffeur.Core", "Chr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromeChauffeur.Tests", "ChromeChauffeur.Tests\ChromeChauffeur.Tests.csproj", "{46847792-6783-40CF-8287-C1A852F4F13F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromeChauffeur.TestApp", "ChromeChauffeur.TestApp\ChromeChauffeur.TestApp.csproj", "{B0DE7F2C-D078-46C3-88D7-C07F374AADE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{46847792-6783-40CF-8287-C1A852F4F13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46847792-6783-40CF-8287-C1A852F4F13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46847792-6783-40CF-8287-C1A852F4F13F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0DE7F2C-D078-46C3-88D7-C07F374AADE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0DE7F2C-D078-46C3-88D7-C07F374AADE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0DE7F2C-D078-46C3-88D7-C07F374AADE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0DE7F2C-D078-46C3-88D7-C07F374AADE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

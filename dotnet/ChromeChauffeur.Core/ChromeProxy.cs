@@ -55,19 +55,25 @@ namespace ChromeChauffeur.Core
 
         public void Click(string cssSelector, TimeSpan timeout)
         {
-            EnsureJavaScriptHelpersInjected();
-            Eval($"chromeChauffeur_privates.click(\"{cssSelector}\");", timeout.AsDeadline());
+            var deadline = timeout.AsDeadline();
+
+            WaitUntilElementExists(cssSelector, timeout);
+
+            Eval($"chromeChauffeur_privates.click(\"{cssSelector}\");", deadline);
         }
 
-        public void Write(string cssSelector, string text)
+        public void WriteTo(string cssSelector, string text)
         {
-            Write(cssSelector, text, _settings.DefaultTimeout);
+            WriteTo(cssSelector, text, _settings.DefaultTimeout);
         }
 
-        public void Write(string cssSelector, string text, TimeSpan timeout)
+        public void WriteTo(string cssSelector, string text, TimeSpan timeout)
         {
-            EnsureJavaScriptHelpersInjected();
-            Eval($"chromeChauffeur_privates.write(\"{text}\", \"{cssSelector}\");", timeout.AsDeadline());
+            var deadline = timeout.AsDeadline();
+
+            WaitUntilElementExists(cssSelector, timeout);
+
+            Eval($"chromeChauffeur_privates.write(\"{text}\", \"{cssSelector}\");", deadline);
         }
 
         public string GetInnerText(string selector)
@@ -94,6 +100,45 @@ namespace ChromeChauffeur.Core
 
             WaitUntilElementExists(selector, timeout);
             return Eval<string>($"document.querySelector(\"{selector}\").innerHTML", deadline);
+        }
+
+        public void SelectByValue(string selector, string value)
+        {
+            SelectByValue(selector, value, _settings.DefaultTimeout);
+        }
+
+        public void SelectByValue(string selector, string value, TimeSpan timeout)
+        {
+            var deadline = timeout.AsDeadline();
+
+            WaitUntilElementExists(selector, timeout);
+            Eval($"chromeChauffeur_privates.selectByValue(\"{selector}\", \"{value}\")", deadline);
+        }
+
+        public void SelectByIndex(string selector, int index)
+        {
+            SelectByIndex(selector, index, _settings.DefaultTimeout);
+        }
+
+        public void SelectByIndex(string selector, int index, TimeSpan timeout)
+        {
+            var deadline = timeout.AsDeadline();
+
+            WaitUntilElementExists(selector, timeout);
+            Eval($"chromeChauffeur_privates.selectByIndex(\"{selector}\", \"{index}\")", deadline);
+        }
+
+        public void SelectByText(string selector, string text)
+        {
+            SelectByText(selector, text, _settings.DefaultTimeout);
+        }
+
+        public void SelectByText(string selector, string text, TimeSpan timeout)
+        {
+            var deadline = timeout.AsDeadline();
+
+            WaitUntilElementExists(selector, timeout);
+            Eval($"chromeChauffeur_privates.selectByText(\"{selector}\", \"{text}\")", deadline);
         }
 
         public void WaitUntilElementExists(string selector)
@@ -152,6 +197,8 @@ namespace ChromeChauffeur.Core
         {
             while (DateTime.Now < deadline)
             {
+                EnsureJavaScriptHelpersInjected();
+
                 var result = _remoteDebuggerClient.SendExpressionCommand(expression);
 
                 if (!result.WasExceptionThrown)
@@ -188,8 +235,36 @@ namespace ChromeChauffeur.Core
 
             if (!isDefined)
             {
-                var script = _embeddedResourceReader.Read("ChromeChauffeur.Core.Scripts.ChromeChauffeur.js", GetType().Assembly);
-                Eval(script);
+                InjectJavaScriptHelpers();
+                InjectUserDefinedScripts();
+                InjectOverrides();
+            }
+        }
+
+        private void InjectJavaScriptHelpers()
+        {
+            var script = _embeddedResourceReader.Read("ChromeChauffeur.Core.Scripts.ChromeChauffeur.js", GetType().Assembly);
+            Eval(script);
+        }
+
+        private void InjectUserDefinedScripts()
+        {
+            var customScript = _settings.CustomJavaScript;
+
+            if (!string.IsNullOrWhiteSpace(customScript))
+                Eval(customScript);
+        }
+
+        private void InjectOverrides()
+        {
+            if (_settings.BypassConfirmationPopup)
+            {
+                Eval("chromeChauffeur_privates.bypassConfirmationPopup(true)");
+            }
+
+            if (_settings.BypassAlertPopup)
+            {
+                Eval("chromeChauffeur_privates.bypassAlertPopup()");
             }
         }
 

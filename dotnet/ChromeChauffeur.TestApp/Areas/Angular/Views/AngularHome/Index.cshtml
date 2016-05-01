@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+
+<html ng-app="cc">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+
+    <script type="text/javascript">
+        var cc = cc || {};
+        cc.baseUrl = '@Url.Content("~/")';
+    </script>
+
+    <script src="~/Areas/Angular/Content/url.js"></script>
+    <script src="~/Areas/Angular/Content/lib/angular.min.js"></script>
+    <script src="~/Areas/Angular/Content/lib/angular-route.min.js"></script>
+    <script src="~/Areas/Angular/Content/app.js"></script>
+</head>
+<body>
+<div>
+    <section ng-view></section>
+</div>
+</body>
+</html>

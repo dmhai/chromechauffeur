@@ -17,7 +17,7 @@ namespace ChromeChauffeur.Tests
         {
             _settings = new ChromeProxySettings()
             {
-                WindowState = WindowState.Minimized,
+                WindowState = WindowState.Maximized,
                 DefaultTimeout = TimeSpan.FromSeconds(10)
             };
 
@@ -25,17 +25,32 @@ namespace ChromeChauffeur.Tests
         }
 
         [Test]
-        public void Can_navigate_to_a_given_URL()
+        public void Can_search_bing()
         {
             // This operation should execute and then wait until document is ready
             _proxy.GoToUrl("http://www.bing.com/");
 
             Assert.AreEqual("http://www.bing.com/", _proxy.GetCurrentUrl());
 
-            _proxy.Write("Chrome Chauffeur!", ".b_searchbox");
+            _proxy.WriteTo(".b_searchbox", "Chrome Chauffeur!");
             _proxy.Click(".b_searchboxSubmit");
 
             _proxy.WaitUntilElementExists(".sb_count");
+        }
+
+        [Test]
+        public void Can_update_angular_js_field()
+        {
+            var title = Guid.NewGuid().ToString();
+
+            _proxy.GoToUrl("http://localhost/cctestapp/angular");
+            _proxy.Click("#add-item-link");
+            _proxy.WriteTo("#title", title);
+            _proxy.Click("#submit");
+
+            _proxy.WaitUntilElementExists("#item-list");
+
+            Assert.AreEqual(title, _proxy.GetInnerText("li:last-of-type"));
         }
 
         [TearDown]

@@ -42,5 +42,24 @@ namespace ChromeChauffeur.Core.Settings
         /// The default timeout used when executing commands in the browser or waiting for elements to be rendered
         /// </summary>
         public TimeSpan DefaultTimeout { get; set; }
+
+        /// <summary>
+        /// Custom JavaScript code that should be injected into the pages of the Chrome instance. 
+        /// This can be used to simplify the test code by adding JavaScript helper functions that
+        /// can be called from the tests via an Eval call.
+        /// </summary>
+        public string CustomJavaScript { get; set; }
+
+        /// <summary>
+        /// Configures the driver to replace the default window.confirm behaviour
+        /// to simply return true instead of showing the actual confirmation popup.
+        /// </summary>
+        public bool BypassConfirmationPopup { get; set; }
+
+        /// <summary>
+        /// Configures the driver to replace the default window.alert behaviour
+        /// to do nothing instead of showing the actual confirmation popup.
+        /// </summary>
+        public bool BypassAlertPopup { get; set; }
     }
 }
