@@ -171,6 +171,26 @@ namespace ChromeChauffeur.Core
                 timeout);
         }
 
+        public void WaitUntil(string javaScriptPredicateExpression, string timeoutMessage = null)
+        {
+            WaitUntil(
+                javaScriptPredicateExpression, 
+                timeoutMessage ?? $"Expression '{javaScriptPredicateExpression}' did not return true within the specified timeout period",
+                _settings.DefaultTimeout);
+        }
+
+        public void WaitUntil(string javaScriptPredicateExpression, string timeoutMessage, TimeSpan timeout)
+        {
+            var deadline = DateTime.Now.Add(timeout);
+
+            WaitUntil(javaScriptPredicateExpression, timeoutMessage, deadline);
+        }
+
+        public void WaitUntil(string javaScriptPredicateExpression, string timeoutMessage, DateTime deadline)
+        {
+            WaitUntil(() => Eval<bool>(javaScriptPredicateExpression), timeoutMessage, deadline);
+        }
+
         public void WaitUntil(Func<bool> predicate, string timeoutMessage, TimeSpan timeout)
         {
             var deadline = DateTime.Now.Add(timeout);

@@ -1,0 +1,8 @@
+﻿@using (Html.BeginForm("FileUpload", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <fieldset id="file-upload">
+        <legend>File upload</legend>
+        <input type="file" name="file"/>
+        <input type="submit" value="Upload"/>
+    </fieldset>
+}

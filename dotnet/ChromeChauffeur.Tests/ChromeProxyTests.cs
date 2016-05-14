@@ -53,6 +53,21 @@ namespace ChromeChauffeur.Tests
             Assert.AreEqual(title, _proxy.GetInnerText("li:last-of-type"));
         }
 
+        [Ignore]
+        [Test]
+        public void Can_upload_file_through_file_input_in_standard_form()
+        {
+            _proxy.GoToUrl("http://localhost/cctestapp/mvc");
+
+            // TODO: select the file here...
+
+            _proxy.Click("#file-upload input[type=submit]");
+
+            var message = _proxy.GetInnerText("#message");
+
+            Assert.AreEqual("File upload success", message);
+        }
+
         [TearDown]
         public void TearDown()
         {
